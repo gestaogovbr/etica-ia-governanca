@@ -1,0 +1,43 @@
+x-app-image-tag: &app_image_tag mgi-aie:latest
+
+services:
+
+  nest:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+    env_file:
+      - ${LOCAL_ENV_FILE:-../.env.production}
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    ports:
+      - "8080:8080"
+
+    restart: unless-stopped
+
+    command: node dist/main.js
+
+ 
+  nest-local:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    env_file:
+      - ${LOCAL_ENV_FILE:-../.env.local}
+      
+    command: npm run start:dev

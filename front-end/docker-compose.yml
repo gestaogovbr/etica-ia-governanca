@@ -1,0 +1,37 @@
+x-app-image-tag: &app_image_tag mgi-aie:latest
+
+services:
+
+  front-end:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+
+    container_name: mgi-aie-front-local
+
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+    ports:
+      - "3000:3000"
+
+    restart: unless-stopped
+
+    command: npm start
+
+  front-end-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    
+    container_name: mgi-aie-front-dev
+    
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev

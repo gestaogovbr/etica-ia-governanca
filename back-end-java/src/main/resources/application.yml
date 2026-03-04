@@ -1,0 +1,50 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  datasource:
+    url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:aie}
+    username: ${POSTGRES_USER:root}
+    password: ${POSTGRES_PASSWORD:root}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    open-in-view: false
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  devtools:
+    restart:
+      enabled: true
+    livereload:
+      enabled: true
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:7f909d34f2628f6a4704f30504de326c6aaae756}
+    access-token-expiration: ${JWT_ACCESS_EXPIRES_IN:1h}
+    refresh-token-expiration: ${JWT_REFRESH_EXPIRES_IN:7d}
+  govbr:
+    client-id: ${GOVBR_CLIENT_ID:}
+    client-secret: ${GOVBR_CLIENT_SECRET:}
+    base-url: ${GOVBR_BASE_URL:https://sso.acesso.gov.br}
+    api-base-url: ${GOVBR_API_BASE_URL:https://api.acesso.gov.br}
+    redirect-uri: ${GOVBR_REDIRECT_URI:http://localhost:8080/retornoWebHook}
+    frontend-origin: ${GOVBR_FRONTEND_ORIGIN:http://localhost:3000}
+    scope: ${GOVBR_SCOPE:openid email profile}
+    token-url: ${GOVBR_TOKEN_URL:}
+    auth-url: ${GOVBR_AUTH_URL:}
+    userinfo-url: ${GOVBR_USERINFO_URL:}
+    basic-auth: ${GOVBR_BASIC_AUTH:}
+    state-secret: ${GOVBR_STATE_SECRET:}
+
+springdoc:
+  swagger-ui:
+    path: docs
+    tagsSorter: alpha 
+    operationsSorter: alpha 
+  api-docs:
+    path: /api-docs

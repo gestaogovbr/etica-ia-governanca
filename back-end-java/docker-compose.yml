@@ -1,0 +1,40 @@
+x-app-image-tag: &app_image_tag mgi-aie:latest
+
+services:
+
+  java:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: prod
+
+    ports:
+      - "8080:8080"
+
+    env_file:
+      - ${LOCAL_ENV_FILE:-../.env.local}
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    restart: unless-stopped
+  
+  java-local:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    
+    env_file:
+      - ${LOCAL_ENV_FILE:-../.env.local}
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      
+    command: mvn spring-boot:run
+
+ 
