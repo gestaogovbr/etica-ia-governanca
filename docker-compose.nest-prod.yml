@@ -1,0 +1,38 @@
+services:
+  #===================== front-end =====================
+  front-end-dev:
+    build:
+      context: ./front-end
+      dockerfile: Dockerfile
+      target: prod
+
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./front-end:/app
+      - /app/node_modules
+    command: npm start
+
+ #===================== back-end =====================
+  nest-local:
+    depends_on:
+      - front-end-dev
+    build:
+      context: ./back-end-nestjs
+      dockerfile: Dockerfile
+      target: prod
+
+    volumes:
+      - ./back-end-nestjs:/app
+      - /app/node_modules
+    ports:
+      - "8080:8080"
+
+    env_file:
+      - ${LOCAL_ENV_FILE:-.env.local}
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    restart: unless-stopped
+  
