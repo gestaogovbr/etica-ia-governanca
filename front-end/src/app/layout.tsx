@@ -1,7 +1,6 @@
 //Layout.tsx
 "use client";
 import Loader from "@/components/common/Loader";
-import DialogUpload from "@/components/Dialog/Upload";
 import { DialogAlertProvider } from "@/contexts/DialogAlertContext";
 import "@/css/satoshi.css";
 import "@/css/style.css";
@@ -60,7 +59,6 @@ export default function RootLayout({
         />
       </head>
 			<body>
-				<DialogUpload></DialogUpload>
 				<DialogAlertProvider>
 					<div className="dark:bg-boxdark-2 dark:text-bodydark">
 						{loading ? <Loader /> : children}
