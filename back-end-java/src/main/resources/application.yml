@@ -24,7 +24,7 @@ spring:
 
 app:
   jwt:
-    secret: ${JWT_SECRET:7f909d34f2628f6a4704f30504de326c6aaae756}
+    secret: ${JWT_SECRET}
     access-token-expiration: ${JWT_ACCESS_EXPIRES_IN:1h}
     refresh-token-expiration: ${JWT_REFRESH_EXPIRES_IN:7d}
   govbr:
