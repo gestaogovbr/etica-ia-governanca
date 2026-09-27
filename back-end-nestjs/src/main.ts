@@ -5,7 +5,6 @@ import cookieParser from 'cookie-parser';
 import { SwaggerModule } from '@nestjs/swagger';
 import { swaggerConfig } from './shared/config/swagger/swagger.config';
 
-// initializeFirebase();
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
