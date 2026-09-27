@@ -72,7 +72,6 @@ All data endpoints exchange JSON (snake_case) and, except for the login routes, 
 |--------|-------|---------|
 | `auth` | `/auth` | Administrator e-mail/password login, JWT issuance |
 | `govbr` | `/govbr/authorize`, `/govbr/callback`, `/retornoWebHook` | Optional gov.br OpenID Connect login |
-| `govbr_tst` | `/govbr-tst/login` | Test stub that simulates a gov.br login — **disable in production** |
 | `admin` | `/admin` | Administrator management |
 | `project` | `/projects` | Assessed projects and sharing |
 | `session` | `/sessions` | Questionnaire sessions and triage |
