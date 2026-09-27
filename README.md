@@ -1,275 +1,204 @@
-# AIE – Avaliação de Impacto Ético
+# AIE – Framework for Ethical Impact Self-Assessment in AI for the Public Sector
 
-Este repositório hospeda o ecossistema da plataforma **AIE** (Avaliação de Impacto Ético em IA). O projeto é composto por:
+*[Leia em português](README.pt-br.md)*
 
-- **front-end/**: aplicação Next.js/Tailwind para a interface administrativa (cadastro de projetos, sessões, atores, respostas etc.).
-- **back-end-nestjs/**: API NestJS responsável pelas regras de negócio, autenticação (inclusive GovBR), persistência em PostgreSQL e geração de relatórios.
-- *(opcional)* **back-end-java/**: API em linguagem padrão usada pelo Governo,`` responsável pelas regras de negócio, autenticação (inclusive GovBR), persistência em PostgreSQL e geração de relatórios.
+**AIE** is an open-source platform that lets public-sector teams run a structured **ethical impact self-assessment** of AI projects. Teams register a project, answer a dynamic questionnaire organised in sessions (including an initial triage that routes the project to the appropriate level of scrutiny), and receive a final classification with scores per session.
 
-A seguir você encontrará um guia completo sobre estrutura de pastas, execução e modelagem do banco.
+The platform is developed by the Brazilian **Ministério da Gestão e da Inovação em Serviços Públicos (MGI)**.
 
----
-
-## 📂 Estrutura do Repositório
-
-```
-aie/
-├── back-end-java/                # API padrão Governo
-├── back-end-nestjs/              # API oficial
-└── front-end/                    # Interface Next.js
-```
-
-### Principais pastas do **front-end**
-```
-front-end/
-├── public/                       # Assets estáticos (images/logo, covers, downloads, flags etc.)
-├── src/
-│   ├── app/                      # Rotas do Next 13 + layouts
-│   │   ├── auth/                 # Tela de login (GovBR/admin)
-│   │   ├── projects/             # CRUD de projetos
-│   │   ├── projects-received/    # Painel de envios finalizados
-│   │   ├── responses/            # Fluxo dinâmico de avaliação
-│   │   ├── sessions/             # Cadastro de sessões
-│   │   ├── questions/            # CRUD de questões
-│   │   ├── config-classifications/# Configuração de níveis/thresholds
-│   │   ├── actors/               # Cadastro de atores
-│   │   ├── admins/               # Administração de usuários
-│   │   ├── logs/                 # Auditoria
-│   │   ├── page.tsx / layout.tsx / not-found.tsx
-│   ├── components/               # Layouts, tabelas, gráficos, formulários, diálogos
-│   ├── contexts/                 # DialogAlertContext, LanguageContext etc.
-│   ├── hooks/                    # Hooks específicos (ex: useLanguage)
-│   ├── service/                  # `api.ts`, `language.tsx`, helpers de datas
-│   ├── lib/                      # Utilitários isolados
-│   ├── types/                    # Tipagens compartilhadas (questions, menu, user…)
-│   ├── fonts/                    # Fontes locais
-│   ├── css/ e js/                # Estilos e scripts auxiliares
-│   └── …
-├── package.json
-└── next.config.mjs / tailwind.config.ts
-```
-
-### Principais pastas do **back-end-nestjs**
-```
-back-end-nestjs/
-├── src/
-│   ├── app.module.ts             # Módulo raiz
-│   ├── common/
-│   │   └── interceptors/         # Interceptores globais
-│   ├── modules/
-│   │   ├── actor/                # CRUD de atores
-│   │   ├── admin/                # Administradores
-│   │   ├── auth/                 # Login por email/senha
-│   │   ├── classification-level/ # Configuração de níveis de classificação
-│   │   ├── dashboard/            # KPIs usados na home
-│   │   ├── govbr/                # Login GovBR
-│   │   ├── govbr_tst/            # Mock legado para testes
-│   │   ├── logs/                 # Registro de auditoria
-│   │   ├── project/              # Projetos e compartilhamentos
-│   │   ├── question/             # Questões
-│   │   ├── response/             # Envio de respostas/sessão
-│   │   ├── result/               # Resumo final das classificações
-│   │   └── session/              # Sessões (triagem, RESULT etc.)
-│   ├── shared/
-│   │   ├── config/               # Configurações globais
-│   │   │   ├── database/         # Configuração TypeORM (autoload entities)
-│   │   │   ├── firebase/         # Integração de notificações (quando usada)
-│   │   │   └── swagger/          # Documentação da API
-│   │   ├── guards/               # Autorização/autenticação
-│   │   ├── interfaces/           # Tipos compartilhados
-│   │   ├── repositories/         # Repositórios auxiliares
-│   │   ├── utils/                # Helpers genéricos
-│   │   └── migrations/           # Histórico de migrações
-│   └── main.ts                   # bootstrap Nest
-├── package.json
-└── nest-cli.json / tsconfig*.json
-```
-
-### Principais pastas do **back-end-java**
-```
-back-end-java/
-├── Dockerfile / docker-compose.yml # Build e orquestração (usa LOCAL_ENV_FILE)
-├── pom.xml                         # Dependências e plugins Maven
-├── src/
-│   ├── main/java/com/aie/backend/  # Código fonte
-│   │   ├── AieApplication.java     # Bootstrap Spring Boot
-│   │   ├── config/                 # Segurança, JWT, OpenAPI, GovBR
-│   │   └── modules/                # Auth, admin, actor, classificationlevel, dashboard,
-│   │                               # govbr, govbr_tst, logs, project, question, response,
-│   │                               # result, session
-│   └── main/resources/application.yml # Configuração (lê variáveis de ambiente)
-└── src/test/java/com/aie/backend/  # Testes
-```
+- License: [GNU GPL v3.0](LICENSE)
+- Privacy notice: [PRIVACY.md](PRIVACY.md)
+- Code of Conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Security policy: [SECURITY.md](SECURITY.md)
 
 ---
 
-## ⚙️ Configuração e Execução
+## Architecture
 
-### 1. Pré-requisitos
-- Node.js 18+
-- npm (ou pnpm/yarn)
-- PostgreSQL 13+
-- Variável `JWT_SECRET` definida (usada no auth e govbr) no arquivo `.env.<local|stage|production>`
-- Docker
-- Java 17
-- Maven
+The repository is a monorepo with a web front-end, two interchangeable back-end implementations and a PostgreSQL database. Only **one** back-end is deployed at a time; both expose the same REST API.
 
-### 2. Banco de Dados
-Crie um banco novo e configure as variáveis de ambiente (`POSTGRES_HOST`, `POSTGRES_PORT`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`) no arquivo `.env.<local|stage|production>`. As migrations são executadas automaticamente ( `migrationsRun: true` no DatabaseModule ).
-
-### 3. Back-end NestJS
-```bash
-cd back-end-nestjs
-npm install
-npm run docker:<modo>:<ambiente>
-
-# modo => run para produção, dev para desenvolvimento (auto reload)
-# ambiente => local, stage ou production
+```mermaid
+flowchart LR
+    U[User's browser] --> FE["front-end<br/>Next.js static export"]
+    FE -- "REST / JSON + JWT" --> BE{{"Back-end API<br/>(choose one)"}}
+    BE --- NEST["back-end-nestjs<br/>NestJS + TypeORM"]
+    BE --- JAVA["back-end-java<br/>Spring Boot + Hibernate"]
+    NEST --> DB[(PostgreSQL)]
+    JAVA --> DB
+    BE -. "optional OIDC login" .-> GOVBR["gov.br identity provider"]
 ```
-- **API**: http://localhost:8080 (ajuste `main.ts`/variáveis se necessário)
-- Rotas relevantes:
-  - `POST /auth/login` (email/senha admin)
-  - `GET /govbr/authorize` → inicia OAuth do gov.br (usa `GOVBR_*`; callback em `/govbr/callback`)
-  - `POST /govbr-tst/login` (mock antigo para testar sem gov.br)
-  - `GET /responses?status=FINISHED` (usado pela tela *projects_received*)
-  - `GET /dashboard` (dados da home)
 
-### 4. Front-end Next.js
-```bash
-cd front-end
-npm install
-npm run dev
-```
-- **App**: http://localhost:3000
-- Tokens são salvos em `localStorage`. O `fetchApi` injeta o header `Authorization` automaticamente.
+| Component | Stack | Description | Docs |
+|-----------|-------|-------------|------|
+| [`front-end/`](front-end) | Next.js 14, React 18, TailwindCSS | Administrative and questionnaire UI. Built as a **static export** that can be served by any web server. | [front-end/README.md](front-end/README.md) |
+| [`back-end-nestjs/`](back-end-nestjs) | NestJS 11, TypeORM, PostgreSQL | Reference REST API: business rules, authentication, persistence and audit logs. | [back-end-nestjs/README.md](back-end-nestjs/README.md) |
+| [`back-end-java/`](back-end-java) | Spring Boot 3, Hibernate, PostgreSQL | Equivalent REST API in Java, for organisations that standardise on the JVM. | [back-end-java/README.md](back-end-java/README.md) |
 
-> **Dica:** o botão “Entrar com GovBR” em `/auth/signin` abre uma popup chamando `/govbr/authorize`. O retorno `/govbr/callback` fecha a popup e entrega o token ao front. Para testar sem credenciais do gov.br, use o mock em `/govbr-tst/login`.
+All components are fully self-hostable and depend only on open-source software. No proprietary cloud service is required.
+
+### Authentication
+
+- **Administrators**: e-mail/password login (`POST /auth/login`) returning a JWT.
+- **gov.br (optional)**: OpenID Connect login through the Brazilian federal identity provider (`GET /govbr/authorize` → `GET /govbr/callback`). It is enabled only when the `GOVBR_*` variables are set; deployments outside Brazil can leave it disabled or replace it with another OIDC provider.
 
 ---
 
-### 5. Back-end Spring-Boot
+## Quick start (Docker Compose)
 
-Arquivos relevantes em `back-end-java/`:
-- `application.yml`: mapeia variáveis de ambiente (`PORT`, `POSTGRES_*`, `JWT_*`, `NODE_ENV`).
-- `docker-compose.yml`: sobe o serviço lendo `LOCAL_ENV_FILE` (mesmo `.env` do NestJS).
-- `Dockerfile`: build da imagem Spring Boot.
-- `pom.xml`: dependências/plugins Maven.
-- `src/main/java/com/aie/backend/{config|modules}/`: código (mesmos domínios do NestJS: auth, admin, actor, classificationlevel, dashboard, govbr/govbr_tst, logs, project, question, response, result, session).
+Requirements: Docker with Compose v2 and a reachable PostgreSQL 13+ instance.
 
-Passo a passo:
-1) Copie o `.env.<ambiente>` já usado no NestJS para `back-end-java/.env.<ambiente>` ou exporte as variáveis no shell (`export $(grep -v '^#' .env.local | xargs)`).
-2) Opcional: gere o JAR localmente para validar dependências.
 ```bash
-cd back-end-java
-mvn clean package -DskipTests
-```
-3) Execute em desenvolvimento:
-```bash
-mvn spring-boot:run
-```
-ou
-```bash
-java -jar target/*.jar
-```
-4) Execute via Docker Compose (lendo o `.env` que estiver em `LOCAL_ENV_FILE`):
-```bash
-cd back-end-java
-LOCAL_ENV_FILE=.env.<ambiente> docker compose up
+# 1. Create an environment file from the example
+cp back-end-nestjs/.env.example .env.local
+# edit .env.local: database credentials, JWT_SECRET, optional GOVBR_* values
 
-# ambiente => local, stage ou production
+# 2. Start front-end + back-end (choose nest or java, dev or prod)
+LOCAL_ENV_FILE=.env.local docker compose -f docker-compose.nest-dev.yml up
 ```
+
+Available compose files: `docker-compose.nest-dev.yml`, `docker-compose.nest-prod.yml`, `docker-compose.java-dev.yml`, `docker-compose.java-prod.yml`.
+
+- Front-end: <http://localhost:3000>
+- API: <http://localhost:8080>
+- API documentation: see [Data extraction & interoperability](#data-extraction--interoperability)
+
+Database migrations run automatically when the NestJS back-end starts (`migrationsRun: true`); they create the schema, the default actors and classification levels. Sessions and questions are then managed by administrators through the UI or the API.
+
+To run each component without Docker, follow the component READMEs.
 
 ---
 
-### 6. Setup Completo (Back-End + Front-End)
-```bash
+## Configuration
 
-LOCAL_ENV_FILE=.env.<ambiente> docker compose -f docker-compose.<back-end>-<modo>.yml up
+All configuration is done through environment variables. Example files: [`back-end-nestjs/.env.example`](back-end-nestjs/.env.example), [`back-end-java/.env.example`](back-end-java/.env.example), [`front-end/.env.example`](front-end/.env.example).
 
-# ambiente => local, stage ou production
-# backend => nest ou java
-# modo => prod para produção, dev para desenvolvimento (auto reload)
+### Back-end (NestJS and Java)
 
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `POSTGRES_HOST` | yes | `localhost` | PostgreSQL host |
+| `POSTGRES_PORT` | no | `5432` | PostgreSQL port |
+| `POSTGRES_USER` | yes | — | Database user |
+| `POSTGRES_PASSWORD` | yes | — | Database password |
+| `POSTGRES_DB` | yes | — | Database name |
+| `JWT_SECRET` | **yes** | — | Secret used to sign JWT access tokens. Use a long random value. |
+| `NODE_ENV` | no | — | `development` enables TypeORM schema sync and SQL logging (NestJS only) |
+| `PORT` | no | `8080` | HTTP port (NestJS) |
+| `SERVER_PORT` | no | `8080` | HTTP port (Java) |
+| `JWT_ACCESS_EXPIRES_IN` | no | `1h` | Access token lifetime (Java) |
+| `JWT_REFRESH_EXPIRES_IN` | no | `7d` | Refresh token lifetime (Java) |
 
-# exemplo => LOCAL_ENV_FILE=.env.production docker compose -f docker-compose.java-prod.yml up
-```
+### gov.br login (optional)
 
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `GOVBR_CLIENT_ID` | — | OIDC client id issued by gov.br. Login is disabled if unset. |
+| `GOVBR_CLIENT_SECRET` | — | OIDC client secret |
+| `GOVBR_BASE_URL` | `https://sso.acesso.gov.br` | Base URL of the authorisation server |
+| `GOVBR_API_BASE_URL` | `https://api.acesso.gov.br` | Base URL used to build the userinfo endpoint |
+| `GOVBR_AUTH_URL` | `${GOVBR_BASE_URL}/authorize` | Overrides the authorisation endpoint |
+| `GOVBR_TOKEN_URL` | `${GOVBR_BASE_URL}/token` | Overrides the token endpoint |
+| `GOVBR_USERINFO_URL` | `${GOVBR_API_BASE_URL}/userinfo` | Overrides the userinfo endpoint |
+| `GOVBR_REDIRECT_URI` | `http://localhost:8080/retornoWebHook` | Redirect URI registered with gov.br |
+| `GOVBR_FRONTEND_ORIGIN` | `http://localhost:3000` | Front-end origin that receives the token via `postMessage` |
+| `GOVBR_SCOPE` | `openid email profile` | Requested scopes |
+| `GOVBR_BASIC_AUTH` | — | Pre-computed `Basic` credentials for the token endpoint (optional) |
+| `GOVBR_STATE_SECRET` | `JWT_SECRET` | Secret used to sign the OAuth `state` parameter |
 
-## 🗃️ Modelagem do Banco (PostgreSQL via TypeORM)
-
-### Entidades chave
-| Entidade            | Descrição                                                                 | Relacionamentos principais |
-|---------------------|----------------------------------------------------------------------------|----------------------------|
-| `administradores`   | Usuários admins (login/email).                                            | `responses` (via logs)     |
-| `projects`          | Projetos avaliados. Inclui proprietário, descrição e compartilhamentos.   | 1:N `responses`, N:N via tabela `project_shares` |
-| `project_shares`    | CPF/Social number com acesso a um projeto.                                | FK `project_id`            |
-| `sessions`          | Sessões/questionários (triagem, RESULT etc.).                             | 1:N `questions`            |
-| `questions`         | Questões dinâmicas por sessão (tipos, opções, atores).                    | FK `session_id`            |
-| `actors`            | Lista de atores (checkbox dinâmico no cadastro de questões).              | N/A                        |
-| `responses`         | Envio de respostas por projeto. Armazena status (`SUBMITTED`/`FINISHED`), `session_scores`, `total_score`. | 1:N `response_answers`, 1:1 `results`, N:1 `projects` |
-| `response_answers`  | Cada resposta de pergunta (valor serializado e pontos).                   | FK `response_id`, `question_id` |
-| `results`           | Resumo final (nível, pontuação, seções). Persistido após RESULT.          | 1:1 `responses`, opcional FK projeto |
-| `logs`              | Auditoria de ações (login etc.).                                         | FK opcional admin          |
-
-### Fluxo de dados
-1. **Sessões** são cadastradas com `is_triage`, `next_session_code` e (quando triagem) `triage_config` detalhando thresholds e próximo formulário.
-2. **Questions** referenciam uma sessão e possuem opções JSON (com `points`, `score` ou `score_positive`).
-3. Durante o preenchimento (front-end `responses/page.tsx`), cada sessão é enviada via `POST /responses`. A triagem calcula risco localmente e envia `session_scores` com os metadados.
-4. Ao atingir `next_session_code = RESULT`, o serviço salva as respostas, gera `ResultSummary` (client) e persiste via `POST /results`. `responses.status` passa a `FINISHED`.
-5. A tela **Projetos** e **Envios Recebidos** listam apenas `FINISHED`, lendo `response.result.summary` para mostrar nível e pontuação.
-
----
-
-## 🧱 Componentes Front-end Relevantes
-- `DefaultLayout`: container padrão com header, menu lateral e `LanguageButton`.
-- `DialogAlertContext`: modal de confirmações/erros usada em todas as telas.
-- Páginas dinâmicas (`src/app/.../page.tsx`) usam hooks `fetchApi` + `useEffect` para carregar dados do Nest.
-- Gráficos na home usam `react-apexcharts` (donut de status e barras horizontais de média por sessão).
-
----
-
-## ✅ Fluxos Principais
-1. **Login**
-   - GovBR: `/govbr/authorize` abre popup, redirect do gov.br volta em `/govbr/callback`; mock legado em `/govbr-tst/login`.
-   - Admin: `/auth/login` com email/senha -> dashboards e CRUDs.
-2. **Cadastro de Sessões/Questões**
-   - Sessões definem sequência e triagem. Questões suportam condicional, atores, order etc.
-3. **Resposta de projetos**
-   - `/projects` -> “Novo Questionário” leva a `/responses?project=<id>`.
-   - Cada envio mantém o mesmo `response_id` até finalizar.
-4. **Resultados finais**
-   - Após RESULT, `/responses?result=true` permite reabrir a tela final sem recálculo.
-   - `/projects_received` lista todos os FINISHED com filtros (responsável, período, nível) e botão “Ver resultado”.
-
----
-
-## 🛠️ Scripts Úteis
 ### Front-end
-```bash
-npm run dev      # desenvolvimento
-npm run build    # build
-npm run start    # modo produção
-npm run lint
-```
 
-### Back-end
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `NEXT_PUBLIC_API_URL` | `http://localhost:8080/` | Base URL of the back-end API (with trailing slash). Embedded at build time. |
+
+---
+
+## Data flow
+
+1. **Sessions** are registered with `is_triage`, `next_session_code` and, for triage sessions, a `triage_config` describing thresholds and the next form.
+2. **Questions** belong to a session and carry JSON options (with `points`, `score` or `score_positive`).
+3. While a project is being assessed (front-end `responses/page.tsx`), each session is submitted via `POST /responses`. Triage risk is computed client-side and sent as `session_scores` metadata.
+4. When `next_session_code = RESULT` is reached, the answers are saved, a result summary is generated and persisted via `POST /results`, and `responses.status` becomes `FINISHED`.
+5. The **Projects** and **Received submissions** screens list only `FINISHED` responses, reading `response.result.summary` to display the level and score.
+
+### Main database entities
+
+| Entity | Description |
+|--------|-------------|
+| `administradores` | Administrator accounts |
+| `projects` / `project_shared_users` | Assessed projects and the people (by CPF) they are shared with |
+| `sessions` / `questions` / `questions_versions` | Questionnaire structure (sessions, triage, questions, options) and question history |
+| `actors` | Actors that can be linked to questions |
+| `responses` / `response_answers` | Submissions per project and individual answers |
+| `results` | Final summary (level, score, sections) |
+| `classification_levels` | Configurable classification levels and thresholds |
+| `logs` | Audit log of user actions |
+
+See [PRIVACY.md](PRIVACY.md) for what personal data is processed and how.
+
+---
+
+## Data extraction & interoperability
+
+AIE stores all its data in a standard PostgreSQL database and exposes it through a documented **REST API that exchanges JSON** (`application/json`). Both back-ends publish an **OpenAPI 3** specification:
+
+| Back-end | Interactive docs (Swagger UI) | OpenAPI spec (JSON) |
+|----------|-------------------------------|---------------------|
+| NestJS | `http://<host>:8080/api/docs` | `http://<host>:8080/api/docs-json` |
+| Java | `http://<host>:8080/docs` | `http://<host>:8080/api-docs` |
+
+The documentation endpoints are public; data endpoints require a JWT (`Authorization: Bearer <token>`) obtained from `POST /auth/login` or the gov.br flow.
+
+Useful endpoints for extracting data:
+
+| Endpoint | Content | Personal data |
+|----------|---------|---------------|
+| `GET /dashboard` | Aggregated indicators: totals of projects and responses, responses by status, average score per session, most frequent answer per question | No (aggregated) |
+| `GET /sessions`, `GET /questions`, `GET /classification-levels`, `GET /actors` | The assessment instrument itself (sessions, questions, options, thresholds) | No |
+| `GET /projects`, `GET /responses`, `GET /results/{responseId}` | Individual projects, submissions and results | **Yes** – includes the project owner and shared users; access is restricted to authenticated users |
+
+Because the data lives in PostgreSQL, operators can also export it with standard tools (`pg_dump`, `COPY ... TO ... CSV`).
+
+In the user interface, the final result screen can be exported through the browser's print dialog (e.g. *Save as PDF*).
+
+---
+
+## Internationalisation
+
+The user interface is available in **Portuguese, English, Spanish and French** (`front-end/src/service/languages/{pt,en,es,fr}.ts`), selectable from the header. The questionnaire content (sessions and questions) is stored in the database and can be translated by each deploying organisation.
+
+---
+
+## Useful scripts
+
 ```bash
-npm run start:dev      # desenvolvimento
+# front-end
+npm run dev      # development server
+npm run build    # static export to ./out
+npm run lint
+
+# back-end-nestjs
+npm run start:dev
 npm run build
 npm run start:prod
-npm run migration:run  # executar migrations manualmente
+npm test
+
+# back-end-java
+mvn spring-boot:run
+mvn clean package
 ```
 
 ---
 
-## 📄 Licenças e Créditos
-- Front-end: Next.js 13 + TailwindCSS.
-- Back-end: NestJS + TypeORM + PostgreSQL.
-- Autenticação GovBR: fluxo OAuth2/OpenID pronto para inserir `GOVBR_*`; mock estático permanece no módulo `govbr_tst`.
+## Contributing & support
 
-Para dúvidas e contribuições, ajuda na implantação/deploy entre em contato por email ou telefone
+Contributions are welcome — please read [CONTRIBUTING.md](CONTRIBUTING.md) and follow the [Code of Conduct](CODE_OF_CONDUCT.md). Report bugs and request features through the [issue tracker](https://github.com/gestaogovbr/etica-ia-governanca/issues). Security issues must be reported privately as described in [SECURITY.md](SECURITY.md).
 
-hudson.m.3110@gmail.com
-(62) 99451-0167
+Institutional contact: **assint.sgd@gestao.gov.br** (Secretaria de Governo Digital – MGI).
 
-Boas avaliações éticas! 🚀
+## License
+
+Copyright © 2026 Ministério da Gestão e da Inovação em Serviços Públicos (MGI).
+
+This program is free software: you can redistribute it and/or modify it under the terms of the **GNU General Public License version 3** as published by the Free Software Foundation. See [LICENSE](LICENSE) for the full text.
