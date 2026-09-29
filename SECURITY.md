@@ -8,7 +8,7 @@ Security fixes are applied to the latest version on the `main` branch of [gestao
 
 **Please do not report security vulnerabilities through public GitHub issues, discussions or pull requests.**
 
-Report them privately by e-mail to **assint.sgd@gestao.gov.br** with the subject `[AIE security]`, or through GitHub's [private vulnerability reporting](https://github.com/gestaogovbr/etica-ia-governanca/security/advisories/new) when it is enabled for the repository.
+Report them privately by e-mail to **cggia@gestao.gov.br** with the subject `[AIE security]`, or through GitHub's [private vulnerability reporting](https://github.com/gestaogovbr/etica-ia-governanca/security/advisories/new) when it is enabled for the repository.
 
 Please include:
 

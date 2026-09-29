@@ -62,7 +62,7 @@ Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the community leaders responsible for enforcement through either
 of these channels:
 
-* **E-mail (private):** assint.sgd@gestao.gov.br — use this channel for any
+* **E-mail (private):** cggia@gestao.gov.br — use this channel for any
   report that involves personal or sensitive information.
 * **GitHub issue tracker (public):**
   https://github.com/gestaogovbr/etica-ia-governanca/issues — suitable for
