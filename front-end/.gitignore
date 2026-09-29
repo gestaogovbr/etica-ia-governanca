@@ -2,6 +2,10 @@
 /dist
 /node_modules
 /build
+/out
+
+# Firebase (no longer used)
+.firebase/
 
 # Logs
 *.log
@@ -40,6 +44,7 @@ lerna-debug.log*
 # dotenv environment variable files
 .env
 .env.*
+!.env.example
 
 # temp directory
 .temp

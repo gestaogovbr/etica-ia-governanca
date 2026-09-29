@@ -39,7 +39,6 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/govbr/authorize").permitAll()
                         .requestMatchers(HttpMethod.GET, "/govbr/callback").permitAll()
                         .requestMatchers(HttpMethod.GET, "/retornoWebHook").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/govbr-tst/login").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/docs", "/swagger-ui/**", "/swagger-ui.html", "/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll()
                         .anyRequest().authenticated())

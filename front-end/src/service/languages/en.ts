@@ -171,7 +171,7 @@ const en: Record<string, string> = {
 	"logs.title": "Logs",
 	"logs.clear": "Clear",
 	"logs.loading": "Loading Logs",
-	"logs.user.placeholder": "e.g.: hudson@... or 42",
+	"logs.user.placeholder": "e.g.: user@example.gov.br or 42",
 	"logs.user": "User",
 	"logs.route": "Page/Route",
 	"logs.route.placeholder": "/sessions, /questions/12...",
