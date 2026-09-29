@@ -195,7 +195,7 @@ mvn clean package
 
 Contributions are welcome — please read [CONTRIBUTING.md](CONTRIBUTING.md) and follow the [Code of Conduct](CODE_OF_CONDUCT.md). Report bugs and request features through the [issue tracker](https://github.com/gestaogovbr/etica-ia-governanca/issues). Security issues must be reported privately as described in [SECURITY.md](SECURITY.md).
 
-Institutional contact: **assint.sgd@gestao.gov.br** (Secretaria de Governo Digital – MGI).
+Institutional contact: **cggia@gestao.gov.br** (Secretaria de Governo Digital – MGI).
 
 ## License
 

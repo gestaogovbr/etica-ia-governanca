@@ -43,4 +43,4 @@ AIE is licensed under the [GNU General Public License v3.0](LICENSE). By submitt
 
 ## Contact
 
-For questions that do not fit an issue, contact **assint.sgd@gestao.gov.br**.
+For questions that do not fit an issue, contact **cggia@gestao.gov.br**.
